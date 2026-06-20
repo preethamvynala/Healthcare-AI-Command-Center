@@ -1,0 +1,54 @@
+# AI
+langchain
+langgraph
+langchain-community
+langchain-core
+langchain-openai
+langchain-google-genai
+langchain-groq
+langchain-chroma
+langchain-text-splitters
+langchain-huggingface
+
+
+# RAG
+chromadb
+pypdf
+sentence-transformers
+
+
+# Database
+psycopg2-binary
+psycopg_pool
+sqlalchemy
+
+
+# FHIR
+fhir.resources
+requests
+
+
+# Guardrails
+guardrails-ai
+
+
+# UI
+streamlit
+plotly
+streamlit-chat
+streamlit_option_menu
+
+
+# Utils
+python-dotenv
+pandas
+
+# BACKEND
+fastapi
+uvicorn
+
+# Voive Assistant
+openai-whisper
+soundfile
+streamlit-mic-recorder
+gtts

@@ -1,0 +1,40 @@
+# Virtual environments
+venv/
+healthcare-env/
+langgraph-automation-env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment secrets
+.env
+
+# Streamlit
+.streamlit/
+
+# Whisper / audio runtime files
+*.wav
+*.mp3
+
+# Logs
+*.log
+
+# Database runtime
+*.sqlite
+*.db
+
+# ChromaDB generated files
+database/chromadb/
+
+# Temporary files
+*.tmp
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
