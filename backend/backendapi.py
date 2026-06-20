@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 from healthcareapp.main import run_agent
 
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 app = FastAPI(
@@ -17,20 +19,44 @@ app = FastAPI(
 
 
 
+# =====================================
+# CORS Configuration
+# Allow Streamlit Frontend to call API
+# =====================================
+
+app.add_middleware(
+
+    CORSMiddleware,
+
+    allow_origins=["*"],
+
+    allow_credentials=True,
+
+    allow_methods=["*"],
+
+    allow_headers=["*"],
+
+)
+
+
+
+
+
 class ChatRequest(BaseModel):
 
-    patient_id:str
-    patient_name:str
+    patient_id: str
 
-    patient_email:str
+    patient_name: str
 
-    patient_mobile:str
+    patient_email: str
 
-    age:int
+    patient_mobile: str
 
-    gender:str
+    age: int
 
-    query:str
+    gender: str
+
+    query: str
 
 
 
@@ -41,7 +67,8 @@ def home():
 
     return {
 
-        "status":"Healthcare AI API running"
+        "status":
+        "Healthcare AI API running"
 
     }
 
@@ -50,11 +77,13 @@ def home():
 
 
 @app.post("/chat")
-def chat(request:ChatRequest):
+def chat(request: ChatRequest):
 
 
     result = run_agent(
+
         question=request.query,
+
         patient_id=request.patient_id,
 
         patient_name=request.patient_name,
@@ -67,8 +96,6 @@ def chat(request:ChatRequest):
 
         gender=request.gender
 
-        
-
     )
 
 
@@ -79,13 +106,25 @@ def chat(request:ChatRequest):
 
 
 @app.post("/appointment")
-def appointment(request:ChatRequest):
+def appointment(request: ChatRequest):
 
 
     result = run_agent(
 
         "book doctor appointment "
-        + request.query
+        + request.query,
+
+        patient_id=request.patient_id,
+
+        patient_name=request.patient_name,
+
+        patient_email=request.patient_email,
+
+        patient_mobile=request.patient_mobile,
+
+        age=request.age,
+
+        gender=request.gender
 
     )
 
@@ -97,13 +136,25 @@ def appointment(request:ChatRequest):
 
 
 @app.post("/insurance")
-def insurance(request:ChatRequest):
+def insurance(request: ChatRequest):
 
 
     result = run_agent(
 
         "check insurance "
-        + request.query
+        + request.query,
+
+        patient_id=request.patient_id,
+
+        patient_name=request.patient_name,
+
+        patient_email=request.patient_email,
+
+        patient_mobile=request.patient_mobile,
+
+        age=request.age,
+
+        gender=request.gender
 
     )
 

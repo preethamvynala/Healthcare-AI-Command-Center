@@ -1,0 +1,63 @@
+services:
+
+# =====================
+# FastAPI Backend
+# =====================
+
+- type: web
+
+  name: healthcare-ai-backend
+
+  runtime: python
+
+  plan: free
+
+  buildCommand: pip install -r requirements.txt
+
+  startCommand: uvicorn backend.backendapi:app --host 0.0.0.0 --port $PORT
+
+
+  envVars:
+
+  - key: PYTHON_VERSION
+    value: 3.11
+
+
+  - key: OPENAI_API_KEY
+    sync: false
+
+
+  - key: LANGCHAIN_API_KEY
+    sync: false
+
+
+  - key: DATABASE_URL
+    sync: false
+
+
+
+# =====================
+# Streamlit Frontend
+# =====================
+
+- type: web
+
+  name: healthcare-ai-frontend
+
+  runtime: python
+
+  plan: free
+
+
+  buildCommand: pip install -r requirements.txt
+
+
+  startCommand: streamlit run frontend.py --server.port $PORT --server.address 0.0.0.0
+
+
+  envVars:
+
+
+  - key: BACKEND_URL
+
+    value: https://healthcare-ai-backend.onrender.com
