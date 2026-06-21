@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from healthcareapp.main import run_agent
-
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -21,7 +19,6 @@ app = FastAPI(
 
 # =====================================
 # CORS Configuration
-# Allow Streamlit Frontend to call API
 # =====================================
 
 app.add_middleware(
@@ -40,7 +37,23 @@ app.add_middleware(
 
 
 
+# =====================================
+# Lazy Load LangGraph Agent
+# Reduces Render RAM usage
+# =====================================
 
+def get_agent():
+
+    from healthcareapp.main import run_agent
+
+    return run_agent
+
+
+
+
+# =====================================
+# Request Model
+# =====================================
 
 class ChatRequest(BaseModel):
 
@@ -61,6 +74,9 @@ class ChatRequest(BaseModel):
 
 
 
+# =====================================
+# Health Check
+# =====================================
 
 @app.get("/")
 def home():
@@ -76,8 +92,15 @@ def home():
 
 
 
+# =====================================
+# Main Chat Endpoint
+# =====================================
+
 @app.post("/chat")
 def chat(request: ChatRequest):
+
+
+    run_agent = get_agent()
 
 
     result = run_agent(
@@ -105,14 +128,24 @@ def chat(request: ChatRequest):
 
 
 
+# =====================================
+# Appointment Endpoint
+# =====================================
+
 @app.post("/appointment")
 def appointment(request: ChatRequest):
 
 
+    run_agent = get_agent()
+
+
+
     result = run_agent(
 
+        question=
         "book doctor appointment "
         + request.query,
+
 
         patient_id=request.patient_id,
 
@@ -135,14 +168,24 @@ def appointment(request: ChatRequest):
 
 
 
+# =====================================
+# Insurance Endpoint
+# =====================================
+
 @app.post("/insurance")
 def insurance(request: ChatRequest):
 
 
+    run_agent = get_agent()
+
+
+
     result = run_agent(
 
+        question=
         "check insurance "
         + request.query,
+
 
         patient_id=request.patient_id,
 
