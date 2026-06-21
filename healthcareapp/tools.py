@@ -16,21 +16,29 @@ import os
 import requests
 
 
+
 def trigger_n8n(event, data):
 
 
     urls = {
 
+
         "appointment_booking":
-        "http://localhost:5678/webhook/healthcare",
+        os.getenv(
+            "N8N_WEBHOOK_URL"
+        ),
 
 
         "insurance_claim":
-        "http://localhost:5678/webhook/insurance_claim",
+        os.getenv(
+            "N8N_INSURANCE_WEBHOOK_URL"
+        ),
 
 
         "invoice_email":
-        "http://localhost:5678/webhook/invoice_email"
+        os.getenv(
+            "N8N_INVOICE_WEBHOOK_URL"
+        )
 
     }
 
@@ -42,19 +50,31 @@ def trigger_n8n(event, data):
 
     if not url:
 
+        print(
+            f"N8N webhook missing for {event}"
+        )
+
         return {
-            "status":"unknown event"
+
+            "status":"missing webhook"
+
         }
+
+
 
 
 
     payload = {
 
+
         "event": event,
+
 
         "data": data
 
+
     }
+
 
 
 
@@ -72,24 +92,49 @@ def trigger_n8n(event, data):
         )
 
 
+
+        print(
+            "N8N RESPONSE:",
+            response.status_code,
+            response.text
+        )
+
+
+
         return {
+
 
             "status":"sent",
 
-            "code":response.status_code,
 
-            "response":response.text
+            "code":
+            response.status_code,
+
+
+            "response":
+            response.text
 
         }
+
 
 
 
     except Exception as e:
 
 
+
+        print(
+            "N8N ERROR:",
+            e
+        )
+
+
+
         return {
 
+
             "status":"error",
+
 
             "error":str(e)
 
