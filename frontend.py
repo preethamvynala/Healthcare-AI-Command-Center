@@ -21,7 +21,7 @@ import whisper
 
 API_URL = os.getenv(
     "BACKEND_URL",
-    "http://localhost:8000"
+    "https://healthcare-ai-backend-8gaa.onrender.com"
 )
 
 
