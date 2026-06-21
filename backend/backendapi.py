@@ -99,30 +99,42 @@ def home():
 @app.post("/chat")
 def chat(request: ChatRequest):
 
+    print("CHAT REQUEST RECEIVED")
 
-    run_agent = get_agent()
+    try:
+
+        print("QUERY:", request.query)
+
+        result = run_agent(
+
+            question=request.query,
+
+            patient_id=request.patient_id,
+
+            patient_name=request.patient_name,
+
+            patient_email=request.patient_email,
+
+            patient_mobile=request.patient_mobile,
+
+            age=request.age,
+
+            gender=request.gender
+
+        )
+
+        print("AGENT COMPLETED")
+
+        return result
 
 
-    result = run_agent(
+    except Exception as e:
 
-        question=request.query,
+        print("AGENT ERROR:", str(e))
 
-        patient_id=request.patient_id,
-
-        patient_name=request.patient_name,
-
-        patient_email=request.patient_email,
-
-        patient_mobile=request.patient_mobile,
-
-        age=request.age,
-
-        gender=request.gender
-
-    )
-
-
-    return result
+        return {
+            "error": str(e)
+        }
 
 
 
