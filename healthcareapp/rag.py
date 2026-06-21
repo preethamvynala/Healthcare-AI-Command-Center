@@ -1,11 +1,30 @@
 import os
+import sys
+
+from dotenv import load_dotenv
+
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.abspath(__file__)
+    )
+)
+
+sys.path.append(BASE_DIR)
+
+
+load_dotenv()
+
 
 from langchain_community.document_loaders import PyPDFLoader
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 from database.chromadb.vector_store import (
-    get_vector_store
+    medical_vectorstore,
+    pharmacy_vectorstore,
+    insurance_vectorstore
 )
 
 
