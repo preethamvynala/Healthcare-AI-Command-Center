@@ -13,7 +13,9 @@ BASE_DIR = os.path.dirname(
 sys.path.append(BASE_DIR)
 
 
-load_dotenv()
+load_dotenv(
+    os.path.join(BASE_DIR, ".env")
+)
 
 
 from langchain_community.document_loaders import PyPDFLoader
