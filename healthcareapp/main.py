@@ -1,4 +1,8 @@
-from healthcareapp.workflows.graph import healthcare_graph
+def get_graph():
+
+    from healthcareapp.workflows.graph import healthcare_graph
+
+    return healthcare_graph
 
 
 
@@ -101,9 +105,11 @@ def run_agent(
 
 
 
-    result = healthcare_graph.invoke(
+    graph = get_graph()
+
+    result = graph.invoke(
         initial_state
-    )
+)
 
 
 
@@ -121,6 +127,7 @@ if __name__ == "__main__":
 
         question=
         "What are symptoms of heart disease?",
+        patient_id="P001",
 
 
         patient_name=

@@ -1,3 +1,14 @@
+"""
+Manual ingestion script.
+
+Do not run automatically on cloud deployment.
+
+Run locally only:
+
+python -m healthcareapp.ingest
+"""
+
+
 from healthcareapp.rag import (
     ingest_medical,
     ingest_pharmacy,
@@ -5,27 +16,16 @@ from healthcareapp.rag import (
 )
 
 
+if __name__=="__main__":
 
-print("Starting ingestion...")
-
-
-print("Loading medical documents")
-
-ingest_medical()
+    print("Starting ingestion")
 
 
+    ingest_medical()
 
-print("Loading pharmacy documents")
+    ingest_pharmacy()
 
-ingest_pharmacy()
-
-
-
-print("Loading insurance documents")
-
-ingest_insurance()
+    ingest_insurance()
 
 
-
-print("All documents indexed successfully")
-
+    print("Completed")

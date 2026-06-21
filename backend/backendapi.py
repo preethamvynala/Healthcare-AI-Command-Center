@@ -2,28 +2,16 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from fastapi.middleware.cors import CORSMiddleware
-from healthcareapp.main import run_agent
-
 
 
 app = FastAPI(
-
     title="Healthcare AI Command Center API",
-
     description="Multi-Agent Healthcare Platform",
-
     version="1.0"
-
 )
 
 
-
-# =====================================
-# CORS Configuration
-# =====================================
-
 app.add_middleware(
-
     CORSMiddleware,
 
     allow_origins=["*"],
@@ -33,15 +21,12 @@ app.add_middleware(
     allow_methods=["*"],
 
     allow_headers=["*"],
-
 )
 
 
-
-# =====================================
-# Lazy Load LangGraph Agent
-# Reduces Render RAM usage
-# =====================================
+# ================================
+# Lazy load LangGraph
+# ================================
 
 def get_agent():
 
@@ -51,114 +36,44 @@ def get_agent():
 
 
 
-
-# =====================================
-# Request Model
-# =====================================
-
 class ChatRequest(BaseModel):
 
-    patient_id: str
+    patient_id:str
 
-    patient_name: str
+    patient_name:str
 
-    patient_email: str
+    patient_email:str
 
-    patient_mobile: str
+    patient_mobile:str
 
-    age: int
+    age:int
 
-    gender: str
+    gender:str
 
-    query: str
-
-
+    query:str
 
 
-# =====================================
-# Health Check
-# =====================================
 
 @app.get("/")
 def home():
 
     return {
-
         "status":
         "Healthcare AI API running"
-
     }
 
 
 
-
-
-# =====================================
-# Main Chat Endpoint
-# =====================================
-
 @app.post("/chat")
-def chat(request: ChatRequest):
-
-    print("CHAT REQUEST RECEIVED")
-
-    try:
-
-        print("QUERY:", request.query)
-
-        result = run_agent(
-
-            question=request.query,
-
-            patient_id=request.patient_id,
-
-            patient_name=request.patient_name,
-
-            patient_email=request.patient_email,
-
-            patient_mobile=request.patient_mobile,
-
-            age=request.age,
-
-            gender=request.gender
-
-        )
-
-        print("AGENT COMPLETED")
-
-        return result
-
-
-    except Exception as e:
-
-        print("AGENT ERROR:", str(e))
-
-        return {
-            "error": str(e)
-        }
-
-
-
-
-
-# =====================================
-# Appointment Endpoint
-# =====================================
-
-@app.post("/appointment")
-def appointment(request: ChatRequest):
+def chat(request:ChatRequest):
 
 
     run_agent = get_agent()
 
 
-
     result = run_agent(
 
-        question=
-        "book doctor appointment "
-        + request.query,
-
+        question=request.query,
 
         patient_id=request.patient_id,
 
@@ -180,25 +95,49 @@ def appointment(request: ChatRequest):
 
 
 
-
-# =====================================
-# Insurance Endpoint
-# =====================================
-
-@app.post("/insurance")
-def insurance(request: ChatRequest):
+@app.post("/appointment")
+def appointment(request:ChatRequest):
 
 
-    run_agent = get_agent()
-
+    run_agent=get_agent()
 
 
     result = run_agent(
 
-        question=
-        "check insurance "
+        "book doctor appointment "
         + request.query,
 
+        patient_id=request.patient_id,
+
+        patient_name=request.patient_name,
+
+        patient_email=request.patient_email,
+
+        patient_mobile=request.patient_mobile,
+
+        age=request.age,
+
+        gender=request.gender
+
+    )
+
+
+    return result
+
+
+
+
+@app.post("/insurance")
+def insurance(request:ChatRequest):
+
+
+    run_agent=get_agent()
+
+
+    result = run_agent(
+
+        "check insurance "
+        + request.query,
 
         patient_id=request.patient_id,
 

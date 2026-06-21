@@ -32,9 +32,25 @@ from healthcareapp.rag import search_knowledge
 
 
 
-# Dynamic LLM
-# Gemini / Groq / OpenAI
-llm = get_llm()
+# ==================================================
+# Lazy Loaded LLM
+# Prevent Render RAM issues
+# ==================================================
+
+_llm = None
+
+
+def get_agent_llm():
+
+    global _llm
+
+
+    if _llm is None:
+
+        _llm = get_llm()
+
+
+    return _llm
 
 
 
@@ -456,9 +472,10 @@ Question:
 
 
 
-    response = llm.invoke(prompt)
+    
+    response = get_agent_llm().invoke(prompt)
 
-    print("GEMINI RESPONSE:")
+    print("LLM RESPONSE:")
     print(response)
 
 

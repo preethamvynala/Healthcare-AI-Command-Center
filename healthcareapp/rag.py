@@ -1,78 +1,163 @@
 import os
 
-
-from dotenv import load_dotenv
-
-
-load_dotenv()
 from langchain_community.document_loaders import PyPDFLoader
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 from database.chromadb.vector_store import (
-    medical_vectorstore,
-    pharmacy_vectorstore,
-    insurance_vectorstore
+    get_vector_store
 )
 
 
 
+# -----------------------------
+# Lazy vector stores
+# -----------------------------
+
+_medical_db = None
+_pharmacy_db = None
+_insurance_db = None
 
 
+
+def get_medical_db():
+
+    global _medical_db
+
+    if _medical_db is None:
+
+        _medical_db = get_vector_store(
+            "medical_collection"
+        )
+
+    return _medical_db
+
+
+
+
+def get_pharmacy_db():
+
+    global _pharmacy_db
+
+    if _pharmacy_db is None:
+
+        _pharmacy_db = get_vector_store(
+            "pharmacy_collection"
+        )
+
+    return _pharmacy_db
+
+
+
+
+def get_insurance_db():
+
+    global _insurance_db
+
+    if _insurance_db is None:
+
+        _insurance_db = get_vector_store(
+            "insurance_collection"
+        )
+
+    return _insurance_db
+
+
+
+
+# -----------------------------
+# PDF loading
+# ONLY used locally
+# -----------------------------
 
 
 def load_pdf(path):
 
+    loader = PyPDFLoader(path)
 
-    loader=PyPDFLoader(path)
-
-
-    documents=loader.load()
-
-
-    return documents
-
+    return loader.load()
 
 
 
 
 def split_documents(documents):
 
-
-    splitter=RecursiveCharacterTextSplitter(
+    splitter = RecursiveCharacterTextSplitter(
 
         chunk_size=1200,
 
         chunk_overlap=100
-
     )
 
-
-    chunks=splitter.split_documents(
+    return splitter.split_documents(
         documents
     )
 
 
-    return chunks
 
 
-
+# -----------------------------
+# INGEST
+# DO NOT RUN ON RENDER
+# -----------------------------
 
 
 def ingest_medical():
 
-
-
     files=[
 
-    "data/medical/guidelines.pdf",
-
-    "data/medical/patient_guides.pdf",
-
-    "data/medical/clinical_protocols.pdf"
+        "data/medical/guidelines.pdf",
+        "data/medical/patient_guides.pdf",
+        "data/medical/clinical_protocols.pdf"
 
     ]
 
+
+    docs=[]
+
+
+    for file in files:
+
+        docs.extend(
+            split_documents(
+                load_pdf(file)
+            )
+        )
+
+
+    db=get_medical_db()
+
+    db.add_documents(docs)
+
+
+
+
+def ingest_pharmacy():
+
+    docs = split_documents(
+
+        load_pdf(
+            "data/pharmacy/drug_information.pdf"
+        )
+    )
+
+
+    db=get_pharmacy_db()
+
+    db.add_documents(docs)
+
+
+
+
+
+def ingest_insurance():
+
+    files=[
+
+        "data/insurance/policies.pdf",
+        "data/insurance/claims.pdf"
+
+    ]
 
 
     docs=[]
@@ -85,86 +170,21 @@ def ingest_medical():
             split_documents(
                 load_pdf(file)
             )
-
         )
 
 
+    db=get_insurance_db()
 
-    db=medical_vectorstore()
 
-
-    db.add_documents(
-        docs
-    )
+    db.add_documents(docs)
 
 
 
 
-
-def ingest_pharmacy():
-
-
-    docs=split_documents(
-
-        load_pdf(
-        "data/pharmacy/drug_information.pdf"
-        )
-
-    )
-
-
-    db=pharmacy_vectorstore()
-
-
-    db.add_documents(
-        docs
-    )
-
-
-
-
-
-
-
-def ingest_insurance():
-
-
-    files=[
-
-    "data/insurance/policies.pdf",
-
-    "data/insurance/claims.pdf"
-
-    ]
-
-
-
-    docs=[]
-
-
-    for file in files:
-
-        docs.extend(
-
-        split_documents(
-            load_pdf(file)
-        )
-
-        )
-
-
-
-    db=insurance_vectorstore()
-
-
-    db.add_documents(
-        docs
-    )
-
-
-
-
-
+# -----------------------------
+# SEARCH
+# Used by agents
+# -----------------------------
 
 
 def search_knowledge(
@@ -173,20 +193,19 @@ def search_knowledge(
 ):
 
 
-
     if domain=="medical":
 
-        db=medical_vectorstore()
+        db=get_medical_db()
 
 
     elif domain=="pharmacy":
 
-        db=pharmacy_vectorstore()
+        db=get_pharmacy_db()
 
 
     else:
 
-        db=insurance_vectorstore()
+        db=get_insurance_db()
 
 
 
@@ -199,9 +218,7 @@ def search_knowledge(
     )
 
 
-    results=retriever.invoke(
-        query
-    )
+    results=retriever.invoke(query)
 
 
     return results
