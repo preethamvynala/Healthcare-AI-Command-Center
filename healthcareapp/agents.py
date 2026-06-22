@@ -682,9 +682,7 @@ def insurance_agent(state):
 # ==================================================
 
 
-
 def billing_agent(state):
-
 
 
     query = state.get(
@@ -703,12 +701,19 @@ def billing_agent(state):
     if not treatment:
 
 
-
         if "invoice" in query:
-
 
             treatment = "Treatment Invoice"
 
+
+        elif "bill" in query:
+
+            treatment = "Treatment Invoice"
+
+
+        elif "payment" in query:
+
+            treatment = "Treatment Invoice"
 
 
         else:
@@ -748,29 +753,58 @@ def billing_agent(state):
 
 
 
-    trigger_n8n(
-    "invoice_email",
-    {
-        **invoice,
 
-        "patient_email":
-        state.get(
-            "patient_email",
-            ""
-        ),
+    # ==============================================
+    # Send invoice email ONLY when user asks invoice
+    # ==============================================
 
-        "patient_name":
-        state.get(
-            "patient_name",
-            ""
+
+    if (
+
+        "invoice" in query
+
+        or
+
+        "bill" in query
+
+        or
+
+        "payment" in query
+
+    ):
+
+
+        trigger_n8n(
+
+            "invoice_email",
+
+            {
+
+            **invoice,
+
+
+            "patient_email":
+
+            state.get(
+                "patient_email",
+                ""
+            ),
+
+
+            "patient_name":
+
+            state.get(
+                "patient_name",
+                ""
+            )
+
+            }
+
         )
-    }
-)
 
 
 
     return state
-
 
 
 # ==================================================
