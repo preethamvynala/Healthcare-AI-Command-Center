@@ -318,79 +318,67 @@ if menu=="Patient Portal":
 
 
 
-    # -----------------------------
-    # Voice Assistant
-    # -----------------------------
+   # -----------------------------
+# Voice Assistant
+# -----------------------------
+
+st.markdown(
+"""
+<div class="voice-box">
+
+🎙️ Voice Healthcare Assistant
+
+</div>
+""",
+unsafe_allow_html=True
+)
 
 
-    st.markdown(
-    """
-    <div class="voice-box">
+audio = mic_recorder(
 
-    🎙️ Voice Healthcare Assistant
+    start_prompt="🎤 Start Recording",
 
-    </div>
+    stop_prompt="⏹ Stop Recording",
 
-    """,
-    unsafe_allow_html=True
+    key="voice"
+
+)
+
+
+if audio:
+
+    audio_file = tempfile.NamedTemporaryFile(
+
+        delete=False,
+
+        suffix=".wav"
+
     )
 
 
-
-    audio = mic_recorder(
-
-        start_prompt="🎤 Start Recording",
-
-        stop_prompt="⏹ Stop Recording",
-
-        key="voice"
-
+    audio_file.write(
+        audio["bytes"]
     )
 
 
+    audio_file.close()
 
-    if audio:
-
-
-        audio_file = tempfile.NamedTemporaryFile(
-
-            delete=False,
-
-            suffix=".wav"
-
-        )
-
-
-        audio_file.write(
-            audio["bytes"]
-        )
-
-
-        audio_file.close()
 
     with st.spinner(
         "AI is converting speech..."
-    ):    
-
-
+    ):
 
         result = model.transcribe(
-
             audio_file.name
-
         )
 
 
-
-        st.session_state.voice_text = (
-            result["text"]
-        )
+    st.session_state.voice_text = result["text"]
 
 
-        st.success(
-            "Voice converted successfully"
-        )
-
+    st.success(
+        "Voice converted successfully"
+    )
 
 
     # =================================================
