@@ -267,7 +267,10 @@ def clinical_care_agent(state):
     ).lower()
 
 
+
+    # ==========================================
     # MRI / Insurance related request
+    # ==========================================
 
     if (
         "mri" in query
@@ -292,7 +295,11 @@ def clinical_care_agent(state):
 
 
 
-    # appointment / symptoms flow
+
+    # ==========================================
+    # Doctor Appointment Booking
+    # ==========================================
+
 
     specialist = state.get(
         "specialist",
@@ -300,24 +307,6 @@ def clinical_care_agent(state):
     )
 
 
-    appointment = book_doctor(
-        specialist
-    )
-
-
-    state["appointment"] = appointment
-
-
-    state["next_agent"] = "billing"
-
-
-    return state
-
-
-
-    # ==========================================
-    # Doctor Appointment Booking
-    # ==========================================
 
     appointment = book_doctor(
         specialist
@@ -341,7 +330,7 @@ def clinical_care_agent(state):
 
 
     # ==========================================
-    # Appointment Email
+    # Appointment Email Trigger
     # ==========================================
 
 
@@ -352,27 +341,45 @@ def clinical_care_agent(state):
         {
 
         "patient_id":
-        state.get("patient_id",""),
+        state.get(
+            "patient_id",
+            ""
+        ),
 
 
         "patient_name":
-        state.get("patient_name",""),
+        state.get(
+            "patient_name",
+            ""
+        ),
 
 
         "patient_email":
-        state.get("patient_email",""),
+        state.get(
+            "patient_email",
+            ""
+        ),
 
 
         "patient_mobile":
-        state.get("patient_mobile",""),
+        state.get(
+            "patient_mobile",
+            ""
+        ),
 
 
         "age":
-        state.get("age",""),
+        state.get(
+            "age",
+            ""
+        ),
 
 
         "gender":
-        state.get("gender",""),
+        state.get(
+            "gender",
+            ""
+        ),
 
 
         **appointment
@@ -380,6 +387,20 @@ def clinical_care_agent(state):
         }
 
     )
+
+
+
+
+    # ==========================================
+    # Continue Workflow
+    # ==========================================
+
+
+    state["next_agent"] = "billing"
+
+
+
+    return state
 
 
 
