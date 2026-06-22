@@ -368,6 +368,10 @@ if menu=="Patient Portal":
 
         audio_file.close()
 
+    with st.spinner(
+        "AI is converting speech..."
+    ):    
+
 
 
         result = model.transcribe(
