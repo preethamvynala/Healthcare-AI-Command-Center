@@ -87,7 +87,7 @@ def trigger_n8n(event, data):
 
             json=payload,
 
-            timeout=10
+            timeout=15
 
         )
 

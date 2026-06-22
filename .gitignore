@@ -25,8 +25,11 @@ __pycache__/
 *.sqlite
 *.db
 
-# ChromaDB generated files
-database/chromadb/
+# ChromaDB runtime data
+database/chromadb/collections/*
+
+# but keep folder
+!database/chromadb/collections/.gitkeep
 
 # Temporary files
 *.tmp
