@@ -291,43 +291,16 @@ for col,item in zip(
 
 
 
-
-
-
-# =====================================================
+  # =====================================================
 # Patient Portal
 # =====================================================
 
-
-if menu=="Patient Portal":
-
+if menu == "Patient Portal":
 
     st.header(
         "🤖 AI Healthcare Assistant"
     )
 
-
-    if "messages" not in st.session_state:
-
-        st.session_state.messages=[]
-
-
-    if "voice_text" not in st.session_state:
-
-        st.session_state.voice_text=""
-
-
-
-  # ================================
-# PATIENT MODULE
-# ================================
-
-if menu == "Patient":
-
-
-    # -----------------------------
-    # Session initialization
-    # -----------------------------
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -343,11 +316,9 @@ if menu == "Patient":
 
     st.markdown(
     """
-    <div class="glass-card">
+    <div class="voice-box">
 
-    <h3>🎙️ Voice Healthcare Assistant</h3>
-
-    Speak your medical query and AI will convert it into text.
+    🎙️ Voice Healthcare Assistant
 
     </div>
     """,
@@ -367,18 +338,15 @@ if menu == "Patient":
 
         )
 
-
     except Exception as e:
 
         audio = None
-
         st.warning(
             "Voice assistant unavailable"
         )
 
 
     if audio:
-
 
         audio_file = tempfile.NamedTemporaryFile(
             delete=False,
@@ -403,9 +371,7 @@ if menu == "Patient":
             )
 
 
-        st.session_state.voice_text = (
-            result["text"]
-        )
+        st.session_state.voice_text = result["text"]
 
 
         st.success(
@@ -413,179 +379,175 @@ if menu == "Patient":
         )
 
 
-
     # -----------------------------
-    # Patient Registration
-    # ALWAYS SHOW
-    # -----------------------------
+# Patient Registration
+# -----------------------------
 
 
-    st.markdown(
-    """
-    <div class="glass-card">
+st.markdown(
+"""
+<div class="glass-card">
 
-    <h3>👤 Patient Registration</h3>
+<h3>👤 Patient Registration</h3>
 
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
-
-
-
-    col1, col2 = st.columns(2)
+</div>
+""",
+unsafe_allow_html=True
+)
 
 
 
-    with col1:
+# Single column patient form
 
 
-        patient_name = st.text_input(
-            "Patient Name"
-        )
+patient_name = st.text_input(
+    "Patient Name"
+)
 
 
-        patient_email = st.text_input(
-            "Email"
-        )
+patient_email = st.text_input(
+    "Email"
+)
 
 
-        patient_mobile = st.text_input(
-            "Mobile"
-        )
+patient_mobile = st.text_input(
+    "Mobile"
+)
 
 
-        age = st.number_input(
-            "Age",
-            min_value=1,
-            max_value=120,
-            value=30
-        )
-
-
-
-    with col2:
-
-
-        gender = st.selectbox(
-
-            "Gender",
-
-            [
-                "Male",
-                "Female",
-                "Other"
-            ]
-
-        )
-
-
-        question = st.text_area(
-
-            "Describe your health problem",
-
-            value=st.session_state.voice_text,
-
-            height=120
-
-        )
+age = st.number_input(
+    "Age",
+    min_value=1,
+    max_value=120,
+    value=30
+)
 
 
 
-    # -----------------------------
-    # Submit
-    # -----------------------------
+gender = st.selectbox(
+
+    "Gender",
+
+    [
+        "Male",
+        "Female",
+        "Other"
+    ]
+
+)
 
 
-    if st.button(
-        "🚀 Send To AI Healthcare System"
+
+question = st.text_area(
+
+    "Describe your health problem",
+
+    value=st.session_state.voice_text,
+
+    height=120
+
+)
+
+
+
+# -----------------------------
+# Submit
+# -----------------------------
+
+
+if st.button(
+    "🚀 Send To AI Healthcare System"
+):
+
+
+    if (
+        not patient_name
+        or not patient_email
+        or not question
     ):
 
 
-        if (
-            not patient_name
-            or not patient_email
-            or not question
-        ):
+        st.warning(
+            "Please complete patient details"
+        )
 
 
-            st.warning(
-                "Please complete patient details"
-            )
+    else:
+
+
+        response = requests.post(
+
+            API_URL + "/chat",
+
+            json={
+
+                "patient_id":"P001",
+
+                "patient_name":
+                patient_name,
+
+                "patient_email":
+                patient_email,
+
+                "patient_mobile":
+                patient_mobile,
+
+                "age":
+                age,
+
+                "gender":
+                gender,
+
+                "query":
+                question
+
+            }
+
+        )
+
+
+        if response.status_code == 200:
+
+
+            answer = response.json()
 
 
         else:
 
 
-            response = requests.post(
+            answer = {
 
-                API_URL + "/chat",
+                "error":
+                response.text
 
-                json={
+            }
 
-                    "patient_id":"P001",
 
-                    "patient_name":
-                    patient_name,
-
-                    "patient_email":
-                    patient_email,
-
-                    "patient_mobile":
-                    patient_mobile,
-
-                    "age":
-                    age,
-
-                    "gender":
-                    gender,
-
-                    "query":
-                    question
-
-                }
-
+            st.error(
+                f"Backend Error {response.status_code}"
             )
 
 
 
-            if response.status_code == 200:
+        st.session_state.messages.append(
 
-                answer = response.json()
-
-
-            else:
-
-                answer = {
-                    "error": response.text
-                }
-
-
-                st.error(
-                    f"Backend Error {response.status_code}"
-                )
-
-
-
-            st.session_state.messages.append(
-
-                (
-                    "user",
-                    question
-                )
-
+            (
+                "user",
+                question
             )
 
+        )
 
-            st.session_state.messages.append(
 
-                (
-                    "assistant",
-                    answer
-                )
 
+        st.session_state.messages.append(
+
+            (
+                "assistant",
+                answer
             )
 
+        )
 
 
     # -----------------------------
@@ -596,8 +558,11 @@ if menu == "Patient":
     st.markdown(
     """
     <div class="section-title">
+
     💬 AI Conversation
+
     </div>
+
     """,
     unsafe_allow_html=True
     )
@@ -617,7 +582,6 @@ if menu == "Patient":
             key=f"msg_{i}"
 
         )
-
 
 
 
