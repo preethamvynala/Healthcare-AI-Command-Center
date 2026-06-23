@@ -87,7 +87,7 @@ def trigger_n8n(event, data):
 
             json=payload,
 
-            timeout=15
+            timeout=90
 
         )
 
@@ -133,7 +133,7 @@ def trigger_n8n(event, data):
         return {
 
 
-            "status":"error",
+            "status":"n8n_failed",
 
 
             "error":str(e)
