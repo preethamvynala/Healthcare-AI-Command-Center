@@ -318,7 +318,7 @@ if menu=="Patient Portal":
 
 
 
-   # ================================
+  # ================================
 # PATIENT MODULE
 # ================================
 
@@ -328,31 +328,36 @@ if menu == "Patient":
     # session init
 
     if "messages" not in st.session_state:
-        st.session_state.messages=[]
+        st.session_state.messages = []
 
 
     if "voice_text" not in st.session_state:
-        st.session_state.voice_text=""
+        st.session_state.voice_text = ""
+
 
 
     # -----------------------------
-    # Voice Assistant
-    # -----------------------------
+# Voice Assistant
+# -----------------------------
+
+st.markdown(
+"""
+<div class="glass-card">
+
+<h3>🎙️ Voice Healthcare Assistant</h3>
+
+Speak your medical query and AI will convert it into text.
+
+</div>
+""",
+unsafe_allow_html=True
+)
 
 
-    st.markdown(
-    """
-    <div class="glass-card">
+audio = None
 
-    <h3>🎙️ Voice Healthcare Assistant</h3>
 
-    Speak your medical query and AI will convert it into text.
-
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
-
+try:
 
     audio = mic_recorder(
 
@@ -360,43 +365,58 @@ if menu == "Patient":
 
         stop_prompt="⏹ Stop Recording",
 
-        key="patient_voice"
+        key="voice_assistant_new"
 
     )
 
 
-    if audio:
+except Exception as e:
+
+    st.warning(
+        "Voice assistant unavailable. You can still use the patient form."
+    )
+
+    st.write(e)
 
 
-        audio_file = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".wav"
+
+if audio:
+
+
+    audio_file = tempfile.NamedTemporaryFile(
+
+        delete=False,
+
+        suffix=".wav"
+
+    )
+
+
+    audio_file.write(
+        audio["bytes"]
+    )
+
+
+    audio_file.close()
+
+
+    with st.spinner(
+        "AI is converting speech..."
+    ):
+
+
+        result = model.transcribe(
+            audio_file.name
         )
 
 
-        audio_file.write(
-            audio["bytes"]
-        )
+    st.session_state.voice_text = result["text"]
 
 
-        audio_file.close()
+    st.success(
+        "Voice converted successfully"
+    )
 
-
-        with st.spinner(
-            "AI is converting speech..."
-        ):
-
-            result = model.transcribe(
-                audio_file.name
-            )
-
-
-        st.session_state["voice_text"] = result["text"]
-
-
-        st.success(
-            "Voice converted successfully"
-        )
 
 
 
@@ -417,10 +437,13 @@ if menu == "Patient":
     )
 
 
+
     col1,col2 = st.columns(2)
 
 
+
     with col1:
+
 
         patient_name = st.text_input(
             "Patient Name"
@@ -439,22 +462,27 @@ if menu == "Patient":
 
         age = st.number_input(
             "Age",
-            1,
-            120,
-            30
+            min_value=1,
+            max_value=120,
+            value=30
         )
+
+
 
 
     with col2:
 
 
         gender = st.selectbox(
+
             "Gender",
+
             [
             "Male",
             "Female",
             "Other"
             ]
+
         )
 
 
@@ -468,6 +496,7 @@ if menu == "Patient":
             ),
 
             height=120
+
         )
 
 
@@ -486,7 +515,7 @@ if menu == "Patient":
         ):
 
             st.warning(
-            "Please complete patient details"
+                "Please complete patient details"
             )
 
 
@@ -499,84 +528,76 @@ if menu == "Patient":
 
                 json={
 
-                "patient_id":"P001",
+                    "patient_id":"P001",
 
-                "patient_name":
-                patient_name,
+                    "patient_name":patient_name,
 
-                "patient_email":
-                patient_email,
+                    "patient_email":patient_email,
 
-                "patient_mobile":
-                patient_mobile,
+                    "patient_mobile":patient_mobile,
 
-                "age":
-                age,
+                    "age":age,
 
-                "gender":
-                gender,
+                    "gender":gender,
 
-                "query":
-                question
+                    "query":question
 
                 }
 
             )
 
 
+
             if response.status_code == 200:
-                try:
 
-                  answer=response.json()
-
-                except Exception:
-                  st.error(
-                      "Backend returned invalid JSON"
-                    )
-
-                  st.write(
-                      response.text
-                    )
-
-                  answer = {
-                      "error":
-                      response.text
-                    }
+                answer = response.json()
 
 
             else:
 
-                st.error(
-                    f"Backend Error {response.status_code}"
-                )
-                st.write(
-                    response.text
-                )    
-                answer={
-                "error":response.text
+                answer = {
+                    "error": response.text
                 }
 
 
-
-            st.session_state.messages.append(
-
-                (
-                "user",
-                question
+                st.error(
+                    f"Backend Error {response.status_code}"
                 )
 
+
+
+            st.session_state.messages.append(
+                (
+                    "user",
+                    question
+                )
             )
 
 
             st.session_state.messages.append(
-
                 (
-                "assistant",
-                answer
+                    "assistant",
+                    answer
                 )
-
             )
 
+
+
+    # chat history
+
+    for i,(role,text) in enumerate(
+        st.session_state.messages
+    ):
+
+        message(
+
+            str(text),
+
+            is_user=(role=="user"),
+
+            key=str(i)
+
+        )
 
 
 
