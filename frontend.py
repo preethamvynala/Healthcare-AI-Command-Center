@@ -325,7 +325,9 @@ if menu=="Patient Portal":
 if menu == "Patient":
 
 
-    # session init
+    # -----------------------------
+    # Session initialization
+    # -----------------------------
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -335,93 +337,86 @@ if menu == "Patient":
         st.session_state.voice_text = ""
 
 
-
     # -----------------------------
-# Voice Assistant
-# -----------------------------
+    # Voice Assistant
+    # -----------------------------
 
-st.markdown(
-"""
-<div class="glass-card">
+    st.markdown(
+    """
+    <div class="glass-card">
 
-<h3>🎙️ Voice Healthcare Assistant</h3>
+    <h3>🎙️ Voice Healthcare Assistant</h3>
 
-Speak your medical query and AI will convert it into text.
+    Speak your medical query and AI will convert it into text.
 
-</div>
-""",
-unsafe_allow_html=True
-)
-
-
-audio = None
-
-
-try:
-
-    audio = mic_recorder(
-
-        start_prompt="🎤 Start Recording",
-
-        stop_prompt="⏹ Stop Recording",
-
-        key="voice_assistant_new"
-
+    </div>
+    """,
+    unsafe_allow_html=True
     )
 
 
-except Exception as e:
+    try:
 
-    st.warning(
-        "Voice assistant unavailable. You can still use the patient form."
-    )
+        audio = mic_recorder(
 
-    st.write(e)
+            start_prompt="🎤 Start Recording",
 
+            stop_prompt="⏹ Stop Recording",
 
+            key="patient_voice"
 
-if audio:
-
-
-    audio_file = tempfile.NamedTemporaryFile(
-
-        delete=False,
-
-        suffix=".wav"
-
-    )
-
-
-    audio_file.write(
-        audio["bytes"]
-    )
-
-
-    audio_file.close()
-
-
-    with st.spinner(
-        "AI is converting speech..."
-    ):
-
-
-        result = model.transcribe(
-            audio_file.name
         )
 
 
-    st.session_state.voice_text = result["text"]
+    except Exception as e:
+
+        audio = None
+
+        st.warning(
+            "Voice assistant unavailable"
+        )
 
 
-    st.success(
-        "Voice converted successfully"
-    )
+    if audio:
 
+
+        audio_file = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".wav"
+        )
+
+
+        audio_file.write(
+            audio["bytes"]
+        )
+
+
+        audio_file.close()
+
+
+        with st.spinner(
+            "AI is converting speech..."
+        ):
+
+            result = model.transcribe(
+                audio_file.name
+            )
+
+
+        st.session_state.voice_text = (
+            result["text"]
+        )
+
+
+        st.success(
+            "Voice converted successfully"
+        )
 
 
 
     # -----------------------------
     # Patient Registration
+    # ALWAYS SHOW
     # -----------------------------
 
 
@@ -438,7 +433,7 @@ if audio:
 
 
 
-    col1,col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
 
 
@@ -469,7 +464,6 @@ if audio:
 
 
 
-
     with col2:
 
 
@@ -478,9 +472,9 @@ if audio:
             "Gender",
 
             [
-            "Male",
-            "Female",
-            "Other"
+                "Male",
+                "Female",
+                "Other"
             ]
 
         )
@@ -490,10 +484,7 @@ if audio:
 
             "Describe your health problem",
 
-            value=st.session_state.get(
-                "voice_text",
-                ""
-            ),
+            value=st.session_state.voice_text,
 
             height=120
 
@@ -501,6 +492,9 @@ if audio:
 
 
 
+    # -----------------------------
+    # Submit
+    # -----------------------------
 
 
     if st.button(
@@ -513,6 +507,7 @@ if audio:
             or not patient_email
             or not question
         ):
+
 
             st.warning(
                 "Please complete patient details"
@@ -530,17 +525,23 @@ if audio:
 
                     "patient_id":"P001",
 
-                    "patient_name":patient_name,
+                    "patient_name":
+                    patient_name,
 
-                    "patient_email":patient_email,
+                    "patient_email":
+                    patient_email,
 
-                    "patient_mobile":patient_mobile,
+                    "patient_mobile":
+                    patient_mobile,
 
-                    "age":age,
+                    "age":
+                    age,
 
-                    "gender":gender,
+                    "gender":
+                    gender,
 
-                    "query":question
+                    "query":
+                    question
 
                 }
 
@@ -567,37 +568,23 @@ if audio:
 
 
             st.session_state.messages.append(
+
                 (
                     "user",
                     question
                 )
+
             )
 
 
             st.session_state.messages.append(
+
                 (
                     "assistant",
                     answer
                 )
+
             )
-
-
-
-    # chat history
-
-    for i,(role,text) in enumerate(
-        st.session_state.messages
-    ):
-
-        message(
-
-            str(text),
-
-            is_user=(role=="user"),
-
-            key=str(i)
-
-        )
 
 
 
@@ -616,38 +603,20 @@ if audio:
     )
 
 
-    for index,(role,text) in enumerate(
-
+    for i,(role,text) in enumerate(
         st.session_state.messages
-
     ):
 
 
-        if role=="user":
+        message(
 
-            message(
+            str(text),
 
-                text,
+            is_user=(role=="user"),
 
-                is_user=True,
+            key=f"msg_{i}"
 
-                key=f"user_{index}"
-
-            )
-
-
-        else:
-
-            message(
-
-                str(text),
-
-                is_user=False,
-
-                key=f"assistant_{index}"
-
-            )
-
+        )
 
 
 
