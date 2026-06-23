@@ -318,235 +318,21 @@ if menu=="Patient Portal":
 
 
 
-   # -----------------------------
-# Voice Assistant
-# -----------------------------
-
-st.markdown(
-"""
-<div class="voice-box">
-
-🎙️ Voice Healthcare Assistant
-
-</div>
-""",
-unsafe_allow_html=True
-)
-
-
-audio = mic_recorder(
-
-    start_prompt="🎤 Start Recording",
-
-    stop_prompt="⏹ Stop Recording",
-
-    key="voice"
-
-)
-
-
-if audio:
-
-    audio_file = tempfile.NamedTemporaryFile(
-
-        delete=False,
-
-        suffix=".wav"
-
-    )
-
-
-    audio_file.write(
-        audio["bytes"]
-    )
-
-
-    audio_file.close()
-
-
-    with st.spinner(
-        "AI is converting speech..."
-    ):
-
-        result = model.transcribe(
-            audio_file.name
-        )
-
-
-    st.session_state.voice_text = result["text"]
-
-
-    st.success(
-        "Voice converted successfully"
-    )
-
-
-    # =================================================
-    # Patient Form
-    # =================================================
-
-
-    st.subheader(
-        "📝 Patient Registration"
-    )
-
-
-
-    patient_name = st.text_input(
-        "Patient Name"
-    )
-
-
-    patient_email = st.text_input(
-        "Patient Email"
-    )
-
-
-    patient_mobile = st.text_input(
-        "Mobile Number"
-    )
-
-
-    age = st.number_input(
-        "Age",
-        1,
-        120,
-        30
-    )
-
-
-    gender = st.selectbox(
-
-        "Gender",
-
-        [
-        "Male",
-        "Female",
-        "Other"
-        ]
-
-    )
-
-
-
-    question = st.text_area(
-
-        "Describe your health problem",
-
-        value=st.session_state.voice_text,
-
-        height=120
-
-    )
-
-
-
-
-    if st.button(
-        "🚀 Send to AI Assistant"
-    ):
-
-
-        if not patient_name or not patient_email or not question:
-
-
-            st.warning(
-                "Please fill patient details"
-            )
-
-
-        else:
-
-
-            response=requests.post(
-
-            API_URL+"/chat",
-
-            json={
-
-            "patient_id":"P001",
-
-            "patient_name":patient_name,
-
-            "patient_email":patient_email,
-
-            "patient_mobile":patient_mobile,
-
-            "age":age,
-
-            "gender":gender,
-
-            "query":question
-
-            }
-
-            )
-
-
-            answer=response.json()
-
-
-            st.session_state.messages.append(
-
-            (
-            "user",
-            question
-            )
-
-            )
-
-
-            st.session_state.messages.append(
-
-            (
-            "assistant",
-            answer
-            )
-
-            )
-
-
-
-
-
-    for i,(role,text) in enumerate(
-        st.session_state.messages
-    ):
-
-
-        message(
-
-            str(text),
-
-            is_user=(role=="user"),
-
-            key=str(i)
-
-        )
-
-# ================================
+   # ================================
 # PATIENT MODULE
 # ================================
 
 if menu == "Patient":
 
-    st.markdown(
-    """
-    <div class="section-title">
-    🤖 AI Healthcare Assistant
-    </div>
-    """,
-    unsafe_allow_html=True
-    )
 
+    # session init
 
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        st.session_state.messages=[]
 
 
     if "voice_text" not in st.session_state:
-        st.session_state.voice_text = ""
-
+        st.session_state.voice_text=""
 
 
     # -----------------------------
@@ -574,10 +360,9 @@ if menu == "Patient":
 
         stop_prompt="⏹ Stop Recording",
 
-        key="voice"
+        key="patient_voice"
 
     )
-
 
 
     if audio:
@@ -593,8 +378,8 @@ if menu == "Patient":
             audio["bytes"]
         )
 
-        audio_file.close()
 
+        audio_file.close()
 
 
         with st.spinner(
@@ -606,14 +391,12 @@ if menu == "Patient":
             )
 
 
-        st.session_state.voice_text = result["text"]
+        st.session_state["voice_text"] = result["text"]
 
 
         st.success(
             "Voice converted successfully"
         )
-
-
 
 
 
@@ -632,7 +415,6 @@ if menu == "Patient":
     """,
     unsafe_allow_html=True
     )
-
 
 
     col1,col2 = st.columns(2)
@@ -667,28 +449,25 @@ if menu == "Patient":
 
 
         gender = st.selectbox(
-
             "Gender",
-
             [
             "Male",
             "Female",
             "Other"
             ]
-
         )
-
 
 
         question = st.text_area(
 
             "Describe your health problem",
 
-            value=
-            st.session_state.voice_text,
+            value=st.session_state.get(
+                "voice_text",
+                ""
+            ),
 
             height=120
-
         )
 
 
